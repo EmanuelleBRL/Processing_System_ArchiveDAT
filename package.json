@@ -1,0 +1,28 @@
+{
+  "name": "processing_system_archivedat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EmanuelleBRL/Processing_System_ArchiveDAT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EmanuelleBRL/Processing_System_ArchiveDAT/issues"
+  },
+  "homepage": "https://github.com/EmanuelleBRL/Processing_System_ArchiveDAT#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3"
+  }
+}
