@@ -3,3 +3,4 @@ prisma/generated
 .env
 .vscode
 .vscode/launch.json
+generated/

@@ -1,44 +1,42 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "./generated/prisma"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Produtos {
-  id Int @id 
-  nome String
-  valorUnitario Decimal @map("valor_unitario")
+  id            Int      @id @default(autoincrement())
+  nome          String
+  valorUnitario Decimal  @map("valor_unitario")
+  Vendas        Vendas[]
 
   @@map("produtos")
-  Vendas Vendas[]
 }
 
 model Clientes {
-  id Int @id @default(autoincrement())
-  nome String
+  id     Int      @id @default(autoincrement())
+  nome   String
+  Vendas Vendas[]
 
   @@map("clientes")
-  Vendas Vendas[]
 }
 
 model Vendas {
-  id Int @id @default(autoincrement())
-  produtosId Int @map("produtos_id")
-  clienteId Int @map("clinte_id")
-  quantidade Int @map("quantidade")
-  dataVenda DateTime @map("data_venda ")
+  id         Int      @id @default(autoincrement())
+  produtosId Int      @map("produtos_id")
+  clienteId  Int      @map("cliente_id")
+  quantidade Int      @map("quantidade")
+  dataVenda  DateTime @map("data_venda")
 
-  
   produtos Produtos @relation(references: [id], fields: [produtosId])
-  cliente Clientes @relation(references: [id], fields: [clienteId])
+  cliente  Clientes @relation(references: [id], fields: [clienteId])
+
+  @@map("vendas")
 }
