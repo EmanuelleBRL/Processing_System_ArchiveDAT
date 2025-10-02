@@ -2,6 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { ReadLine } from "readline";
+import { Readline } from "readline/promises";
+import readline from 'readline';
+import { buffer } from "stream/consumers";
+
 interface Produto {
   id: number;
   nome: string;
@@ -34,7 +39,13 @@ class DatFileParser {
     valorUnitario: { start: 111, length: 10 },   // Posição 112-121 do arquivo
     data: { start: 121, length: 10 }             // Posição 122-131 do arquivo
   };
+  
+  //metodo para chamarmos o parseRecord
+  //linha bufferizada do tipo venda
+  public getParseRecord(lineBuffer : Buffer) : Venda{
+    return this.parseRecord(lineBuffer);
 
+  }
   private vendaCounter = 1;
 
   private extractField(buffer: Buffer, start: number, length: number): string {
@@ -108,7 +119,9 @@ class DatFileParser {
 
     return venda;
   }
+   
 
+  //percorre bit a bit nao e muito legal,fora que tem que gerenciar offsets manualmente
   parse(buffer: Buffer): Venda[] {
     const vendas: Venda[] = [];
     this.vendaCounter = 1;
@@ -159,6 +172,45 @@ class VendasController {
           message: `O arquivo ${filename} não foi encontrado no servidor`
         });
       }
+      
+      //constante que possue uma interface de leitura
+  
+      /*
+      const r1 = readline.createInterface({
+        input : fs.createReadStream(filePath),
+        crlfDelay: Infinity
+
+      }) */
+      
+      //leitura atual com streams
+      //logica de loteamento
+      //criar um array repository que ira armazenar temporariamente os lotes e enviar para o banco
+
+      /*
+      const vendas : Venda[] = [];
+      const lote : Venda [] = [];
+      const TAMANHO_LOTE = 500;
+
+    
+
+      for await (const line of r1){
+        const buffer = Buffer.from(line, 'utf8');
+
+        const venda = this.parser.getParseRecord(buffer);
+        lote.push(venda);
+
+        if(lote.length >= TAMANHO_LOTE){
+          await vendasRepository.insertMany(lote.splice(0, TAMANHO_LOTE));
+        }
+        
+        if (lote.length > 0){
+          await vendasRepository.insertMany(lote);
+        }
+        
+      }
+      
+      */
+     // return response.status(200).json(venda);
 
       // Lê o arquivo usando Buffer
       const buffer = fs.readFileSync(filePath);
