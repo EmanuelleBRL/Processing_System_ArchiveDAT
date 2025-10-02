@@ -1,15 +1,19 @@
 {
   "compilerOptions": {
+    // Sincronizando target e lib para a mesma versão
     "target": "es2023",
     "lib": [
-      "ES2022"
+      "ES2023"
     ],
     "module": "node16",
+    "moduleResolution": "node16",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    // Definindo a base para os caminhos e corrigindo o alias
+    "baseUrl": ".",
     "paths": {
       "@/*": [
-        "/backend/src/*"
+        "src/*"
       ]
     }
   }
