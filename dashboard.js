@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ⚠️ IMPORTANTE: Escolha apenas UMA das opções abaixo:
     
     // OPÇÃO 1: Para testar LOCALMENTE (backend rodando na sua máquina)
-    const API_URL = 'http://localhost:3333';
+    const API_URL = 'processingsystemarchivedat-production.up.railway.app';
     
     // OPÇÃO 2: Para usar o backend no RAILWAY (comente a linha acima e descomente esta)
     // const API_URL = 'https://processingsystemarchivedat-production.up.railway.app';
