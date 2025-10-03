@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/server.js"
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "postinstall": "prisma generate"
   },
   "repository": {
     "type": "git",
@@ -19,8 +22,11 @@
   "homepage": "https://github.com/EmanuelleBRL/Processing_System_ArchiveDAT#readme",
   "dependencies": {
     "@prisma/client": "^6.16.3",
+    "@types/iconv-lite": "^0.0.1",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "iconv-lite": "^0.7.0",
     "multer": "^2.0.2",
     "tsx": "^4.20.6"
   },
@@ -30,6 +36,7 @@
     "@types/node": "^24.6.1",
     "prisma": "^6.16.3",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
   }
 }
