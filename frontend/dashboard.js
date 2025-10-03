@@ -141,4 +141,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Inicia o carregamento dos dados ---
     loadDashboardData(defaultFilename);
+
+    // --- Lógica de Upload ---
+    const fileInput = document.querySelector('.upload_button');
+
+    fileInput.addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+            return;
+        }
+
+        // Validação do tipo de arquivo (opcional, o backend já faz isso)
+        if (!file.name.endsWith('.dat')) {
+            alert('Por favor, selecione um arquivo .dat');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Mostra um estado de "carregando"
+        fileInput.classList.add('uploading');
+
+        try {
+            const response = await fetch(`${API_URL}/vendas/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro ao fazer upload do arquivo.');
+            }
+
+            // Sucesso no upload
+            alert('Arquivo enviado com sucesso!');
+
+            // A rota de upload já processa e retorna os dados, então podemos usá-los diretamente
+            const data = await response.json();
+            if (data.vendas && data.vendas.length > 0) {
+                document.getElementById('dashboard-title').textContent = `Dashboard - ${file.name.replace('vendas_', '').replace('.dat', '')}`;
+                processAndRenderData(data.vendas);
+            } else {
+                showEmptyState();
+            }
+
+        } catch (error) {
+            console.error("Falha no upload:", error);
+            alert(`Erro no upload: ${error.message}`);
+        } finally {
+            // Remove o estado de "carregando"
+            fileInput.classList.remove('uploading');
+            // Limpa o valor do input para permitir o upload do mesmo arquivo novamente
+            fileInput.value = '';
+        }
+    });
 });

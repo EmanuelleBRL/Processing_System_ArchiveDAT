@@ -113,8 +113,9 @@ main {
 }
 .side_container .actions_box .upload_button {
   background-color: #3b82f6;
-  color: #ffffff;
+  color: transparent;
   border-radius: 25px;
+  text-align: center;
 }
 .side_container .actions_box .download_button {
   background-color: #ffffff;
@@ -263,4 +264,26 @@ main {
   width: 100%;
   z-index: -1;
   pointer-events: none;
-}/*# sourceMappingURL=style.css.map */
+}
+
+.upload_button::-webkit-file-upload-button {
+    visibility: hidden;
+}
+.upload_button::before {
+  content: 'Carregar Arquivo';
+  display: inline-block;
+  outline: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  width: 100%;
+}
+
+.upload_button.uploading::before {
+    content: 'Enviando...';
+}
+
+/*# sourceMappingURL=style.css.map */
