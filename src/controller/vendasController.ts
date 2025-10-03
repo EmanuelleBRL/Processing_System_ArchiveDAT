@@ -111,7 +111,7 @@ class DatFileParser {
         const vendas: Venda[] = [];
         this.vendaCounter = 1;
 
-        const fileContent = iconv.decode(buffer, 'latin1');
+        const fileContent = iconv.decode(buffer, 'win1252');
         const lines = fileContent.split(/\r?\n/);
 
         console.log(`\n========================================`);
@@ -157,10 +157,98 @@ class VendasController {
         this.parser = new DatFileParser();
     }
 
-    // RF06-RF10: Endpoint GET /vendas
+    // 🚀 MÉTODO AUXILIAR: Salvar o registro do arquivo no histórico
+    private async salvarArquivoHistorico(filename: string) {
+        // Extrai a data do arquivo (assumindo o formato 'vendas_DD-MM-YYYY.dat' ou similar)
+        const match = filename.match(/vendas_(\d{2}-\d{2}-\d{4})\.dat/);
+        
+        // Se a data não puder ser extraída do nome do arquivo, usa a data atual
+        const dateVenda = match 
+            ? new Date(`${match[1].substring(6, 10)}-${match[1].substring(3, 5)}-${match[1].substring(0, 2)}T00:00:00.000Z`)
+            : new Date(); 
+
+        try {
+            await (prisma as any).arquivoHistorico.upsert({
+                where: { nomeArquivo: filename },
+                update: { dataProcessamento: new Date() },
+                create: {
+                    nomeArquivo: filename,
+                    dataVenda: dateVenda
+                }
+            });
+            console.log(`✓ Arquivo ${filename} registrado/atualizado no histórico.`);
+        } catch (error) {
+            console.error(`✗ Erro ao salvar histórico do arquivo ${filename}:`, error);
+        }
+    }
+
+    // 🚀 MÉTODO AUXILIAR: Listar Vendas por data (Usado pelo 'processar')
+    private async listarVendasPorData(dataFiltro: string) {
+        // dataFiltro deve estar no formato YYYY-MM-DD
+        const dataInicio = new Date(`${dataFiltro}T00:00:00.000Z`);
+        const dataFim = new Date(`${dataFiltro}T23:59:59.999Z`);
+
+        // Busca no banco de dados as vendas dentro do intervalo de um dia
+        const vendas = await prisma.vendas.findMany({
+            where: {
+                dataVenda: {
+                    gte: dataInicio,
+                    lte: dataFim,
+                },
+            },
+            include: {
+                produtos: true,
+                cliente: true
+            }
+        });
+
+        // Formata a resposta para o frontend
+        return vendas.map((venda: any) => ({
+            id_venda: venda.id,
+            data_venda: venda.dataVenda.toISOString().split('T')[0],
+            quantidade: venda.quantidade,
+            valor_total_venda: Number(venda.produtos.valorUnitario) * venda.quantidade,
+            produto: {
+                id: venda.produtos.id,
+                nome: venda.produtos.nome,
+                valor_unitario: Number(venda.produtos.valorUnitario)
+            },
+            cliente: {
+                id: venda.cliente.id,
+                nome: venda.cliente.nome
+            }
+        }));
+    }
+
+    // 🚀 ENDPOINT: Listar Arquivos no Histórico
+    listarHistorico = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const arquivos = await (prisma as any).arquivoHistorico.findMany({
+                orderBy: {
+                    dataVenda: 'desc' // Ordena pela data mais recente
+                }
+            });
+
+            // Formata a resposta para o frontend
+            const historicoFormatado = arquivos.map((a: any) => {
+                const dataExibicao = a.dataVenda.toLocaleDateString('pt-BR', {timeZone: 'UTC'}); 
+                return {
+                    filename: a.nomeArquivo,
+                    data_exibicao: dataExibicao,
+                    data_processamento: a.dataProcessamento,
+                };
+            });
+
+            return response.status(200).json({ historico: historicoFormatado });
+        } catch (error) {
+            console.error('Erro no listarHistorico:', error);
+            return next(error);
+        }
+    }
+
+    // RF06-RF10: Endpoint GET /vendas (Lista todas as vendas do banco)
     listarVendas = async (request: Request, response: Response, next: NextFunction) => {
         try {
-            // Buscar todas as vendas com relacionamentos
             const vendas = await prisma.vendas.findMany({
                 include: {
                     produtos: true,
@@ -171,8 +259,7 @@ class VendasController {
                 }
             });
 
-            // Formatar resposta conforme RF08-RF10
-            const vendasFormatadas = vendas.map((venda) => ({
+            const vendasFormatadas = vendas.map((venda: any) => ({
                 id_venda: venda.id,
                 data_venda: venda.dataVenda.toISOString().split('T')[0], // YYYY-MM-DD
                 nome_cliente: venda.cliente.nome,
@@ -201,45 +288,19 @@ class VendasController {
 
         for (const venda of vendas) {
             try {
-                // RF04: Inteligência de Importação (Produto)
-                let produto = await prisma.produtos.findUnique({
-                    where: { id: venda.produto.id }
-                });
-
+                // ... (Lógica de upsert de Produto e Cliente, inalterada)
+                let produto = await prisma.produtos.findUnique({ where: { id: venda.produto.id } });
                 if (!produto) {
-                    produto = await prisma.produtos.create({
-                        data: {
-                            id: venda.produto.id,
-                            nome: venda.produto.nome,
-                            valorUnitario: venda.produto.valor_unitario
-                        }
-                    });
+                    produto = await prisma.produtos.create({ data: { id: venda.produto.id, nome: venda.produto.nome, valorUnitario: venda.produto.valor_unitario } });
                     resultado.produtos_criados++;
-                    console.log(`✓ Produto criado: ${produto.nome}`);
-                } else {
-                    resultado.produtos_existentes++;
-                    console.log(`→ Produto já existe: ${produto.nome}`);
-                }
+                } else { resultado.produtos_existentes++; }
 
-                // RF05: Inteligência de Importação (Cliente)
-                let cliente = await prisma.clientes.findUnique({
-                    where: { id: venda.cliente.id }
-                });
-
+                let cliente = await prisma.clientes.findUnique({ where: { id: venda.cliente.id } });
                 if (!cliente) {
-                    cliente = await prisma.clientes.create({
-                        data: {
-                            id: venda.cliente.id,
-                            nome: venda.cliente.nome
-                        }
-                    });
+                    cliente = await prisma.clientes.create({ data: { id: venda.cliente.id, nome: venda.cliente.nome } });
                     resultado.clientes_criados++;
-                    console.log(`✓ Cliente criado: ${cliente.nome}`);
-                } else {
-                    resultado.clientes_existentes++;
-                    console.log(`→ Cliente já existe: ${cliente.nome}`);
-                }
-
+                } else { resultado.clientes_existentes++; }
+                
                 // RF03: Persistência de Vendas
                 const vendaCriada = await prisma.vendas.create({
                     data: {
@@ -249,9 +310,7 @@ class VendasController {
                         dataVenda: new Date(venda.data_venda)
                     }
                 });
-
                 resultado.vendas_criadas++;
-                console.log(`✓ Venda #${vendaCriada.id} criada`);
 
             } catch (error: any) {
                 const mensagemErro = `Erro ao processar venda ${venda.id_venda}: ${error.message}`;
@@ -259,11 +318,78 @@ class VendasController {
                 console.error(`✗ ${mensagemErro}`);
             }
         }
-
         return resultado;
     }
 
-    // Endpoint para visualizar arquivo sem salvar
+    // RF01-RF02: Upload e processamento de arquivo
+    upload = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const file = (request as any).file;
+            if (!file) { return response.status(400).json({ error: 'Nenhum arquivo enviado', message: 'Por favor, envie um arquivo .dat' }); }
+
+            const buffer = file.buffer;
+            const vendas = this.parser.parse(buffer);
+
+            const resultado = await this.salvarVendasNoBanco(vendas);
+            await this.salvarArquivoHistorico(file.originalname);
+
+            return response.status(200).json({
+                message: 'Arquivo processado e vendas salvas com sucesso',
+                vendas_processadas: vendas.length,
+                resultado: resultado,
+                vendas: vendas,
+                filename: file.originalname
+            });
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    // 🛑 MÉTODO processar CORRIGIDO PARA CARREGAR DO BANCO
+    processar = async (request: Request, response: Response, next: NextFunction) => {
+        try {
+            const filename = request.query.filename as string;
+
+            if (!filename) {
+                // Se nenhum filename for fornecido, retorna 400 ou carrega o default (opção de design)
+                return response.status(400).json({ error: 'Nome do arquivo não fornecido.' });
+            }
+            
+            // 1. Extrai a data do filename (ex: 'vendas_29-09-2025.dat' -> '2025-09-29')
+            const match = filename.match(/vendas_(\d{2}-\d{2}-\d{4})\.dat/);
+            
+            if (!match) {
+                 return response.status(400).json({ error: 'Formato de nome de arquivo inválido. Esperado: vendas_DD-MM-YYYY.dat' });
+            }
+
+            const [_, datePart] = match; // datePart = DD-MM-YYYY
+            const [day, month, year] = datePart.split('-');
+            const dataFiltro = `${year}-${month}-${day}`; // dataFiltro = YYYY-MM-DD
+
+            // 2. Busca os dados DIRETAMENTE do banco
+            const vendas = await this.listarVendasPorData(dataFiltro);
+
+            if (vendas.length === 0) {
+                 return response.status(200).json({ message: `Nenhuma venda encontrada para a data ${dataFiltro}`, vendas: [] });
+            }
+
+            // 3. Opcional: Registra o arquivo no histórico (garantia)
+            await this.salvarArquivoHistorico(filename); 
+
+            // 4. Retorna as vendas formatadas (sem tentar ler o arquivo do disco)
+            return response.status(200).json({
+                message: 'Vendas carregadas do banco de dados com sucesso',
+                total: vendas.length,
+                vendas: vendas
+            });
+        } catch (error) {
+            console.error("Erro no processar (carregamento do histórico):", error);
+            // Retorna 500 para o frontend exibir a mensagem de erro
+            return response.status(500).json({ error: 'Erro interno do servidor ao carregar dados.' }); 
+        }
+    }
+
+    // Endpoint para visualizar arquivo sem salvar (Mantido, mas raramente usado após a correção)
     index = async (request: Request, response: Response, next: NextFunction) => {
         try {
             const filename = request.query.filename as string || 'vendas_29-09-2025.dat';
@@ -280,86 +406,6 @@ class VendasController {
             const vendas = this.parser.parse(buffer);
 
             return response.status(200).json(vendas);
-        } catch (error) {
-            return next(error);
-        }
-    }
-
-    // RF01-RF02: Upload e processamento de arquivo
-    upload = async (request: Request, response: Response, next: NextFunction) => {
-        try {
-            const file = (request as any).file;
-
-            if (!file) {
-                return response.status(400).json({
-                    error: 'Nenhum arquivo enviado',
-                    message: 'Por favor, envie um arquivo .dat'
-                });
-            }
-
-            const buffer = file.buffer;
-            const vendas = this.parser.parse(buffer);
-
-            // Salvar vendas no banco de dados
-            console.log('\n========================================');
-            console.log('Iniciando salvamento no banco de dados...');
-            console.log('========================================\n');
-
-            const resultado = await this.salvarVendasNoBanco(vendas);
-
-            console.log('\n========================================');
-            console.log('Resumo do processamento:');
-            console.log(`Produtos criados: ${resultado.produtos_criados}`);
-            console.log(`Produtos existentes: ${resultado.produtos_existentes}`);
-            console.log(`Clientes criados: ${resultado.clientes_criados}`);
-            console.log(`Clientes existentes: ${resultado.clientes_existentes}`);
-            console.log(`Vendas criadas: ${resultado.vendas_criadas}`);
-            console.log(`Erros: ${resultado.erros.length}`);
-            console.log('========================================\n');
-
-            return response.status(200).json({
-                message: 'Arquivo processado e vendas salvas com sucesso',
-                vendas_processadas: vendas.length,
-                resultado: resultado,
-                vendas: vendas
-            });
-        } catch (error) {
-            return next(error);
-        }
-    }
-
-    // Processar arquivo do servidor
-    processar = async (request: Request, response: Response, next: NextFunction) => {
-        try {
-            const filename = request.query.filename as string || 'vendas_29-09-2025.dat';
-            const filePath = path.join(process.cwd(), filename);
-
-            if (!fs.existsSync(filePath)) {
-                return response.status(404).json({
-                    error: 'Arquivo não encontrado'
-                });
-            }
-
-            const buffer = fs.readFileSync(filePath);
-            const vendas = this.parser.parse(buffer);
-
-            // Salvar vendas no banco de dados
-            console.log('\n========================================');
-            console.log('Iniciando processamento e salvamento...');
-            console.log('========================================\n');
-
-            const resultado = await this.salvarVendasNoBanco(vendas);
-
-            console.log('\n========================================');
-            console.log('Processamento concluído!');
-            console.log('========================================\n');
-
-            return response.status(200).json({
-                message: 'Vendas processadas e salvas com sucesso',
-                total: vendas.length,
-                resultado: resultado,
-                vendas: vendas
-            });
         } catch (error) {
             return next(error);
         }

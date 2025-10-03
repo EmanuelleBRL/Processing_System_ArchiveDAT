@@ -39,3 +39,10 @@ model Vendas {
 
   @@map("vendas")
 }
+
+model ArquivoHistorico {
+  id              Int      @id @default(autoincrement())
+  nomeArquivo     String   @unique // Ex: vendas_29-09-2025.dat
+  dataProcessamento DateTime @default(now())
+  dataVenda       DateTime // Data extraída do nome do arquivo (para ordenação)
+}

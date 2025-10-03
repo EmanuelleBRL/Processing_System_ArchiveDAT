@@ -1,20 +1,29 @@
 import express, { NextFunction, Request, Response } from "express";
 import 'dotenv/config';
-import cors from 'cors'; // 1. Importe o pacote cors
+import cors from 'cors'; 
 import { routes } from "./router";
 import { AppError } from "./utils/AppError";
 
-const PORT = process.env.PORT || 3333; // Boa prática: use a porta do ambiente ou 3333 como padrão
+const PORT = process.env.PORT || 3333;
 
 const app = express();
 
 app.use(express.json());
 
-// 2. Use o middleware do cors ANTES de definir as rotas
-// Isso irá permitir que qualquer domínio acesse sua API.
-app.use(cors()); 
+// 💡 1. Objeto de configuração do CORS
+const corsOptions = {
+    // 💡 2. Defina a origem específica
+    origin: 'http://127.0.0.1:5501', 
+    // Opcional: Especifique os métodos HTTP permitidos
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    // Opcional: Permita cookies e credenciais
+    credentials: true, 
+};
 
-// 3. Suas rotas
+// 💡 3. Use o middleware do cors com as opções
+app.use(cors(corsOptions)); 
+
+// Suas rotas
 app.use(routes)
 
 app.use((error: Error, request: Request, response: Response, next: NextFunction) => {
@@ -25,7 +34,7 @@ app.use((error: Error, request: Request, response: Response, next: NextFunction)
         })
     }
 
-    console.error(error); // Adicione um log do erro para facilitar o debug
+    console.error(error); 
 
     return response.status(500).json({
         status: "Error",

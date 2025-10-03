@@ -34,4 +34,7 @@ vendasRouter.get('/processar', vendasController.processar);
 // GET /vendas/preview?filename=vendas_29-09-2025.dat
 vendasRouter.get('/preview', vendasController.index);
 
+// 🚀 NOVO ENDPOINT: Listar os arquivos do histórico
+vendasRouter.get('/historico', vendasController.listarHistorico); 
+
 export { vendasRouter }
