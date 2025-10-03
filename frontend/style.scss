@@ -1,0 +1,350 @@
+/* ==========================================================================
+   1. SETTINGS - Variáveis (Tokens de Design)
+   ========================================================================== */
+
+// -- Paleta de Cores
+$primary-blue: #3b82f6;
+$light-gray-bg: #f3f4f6;
+$border-color: #e5e7eb;
+$text-color-dark: #1f2937;
+$text-color-light: #ffffff;
+$icon-color: #6b7280;
+$page-bg: #f9fafb;
+
+// -- Tipografia
+$font-family-base: "SF-Pro", sans-serif;
+$font-size-base: 16px;
+$font-size-title: 18px;
+$font-weight-bold: 600;
+
+// -- Dimensões & Espaçamentos
+$sidebar-width: 300px;
+$content-width: 230px; // Largura dos elementos internos da sidebar
+$item-height: 40px;
+$avatar-size: 40px;
+
+$gap-main: 40px;
+$gap-list: 12px;
+$margin-sm: 12px;
+$padding-main-v: 24px;
+$padding-main-h: 32px;
+$padding-item-h: 16px;
+
+// -- Bordas
+$border-radius-btn: 25px;
+$border-radius-item: 8px;
+$border-radius-round: 50%;
+$border-base: 1px solid $border-color;
+
+
+/* ==========================================================================
+   2. BASE - Estilos de tags (body, h1, p), etc.
+   ========================================================================== */
+
+@font-face {
+    font-family: "SF-Pro";
+    src: url(assets/font/SF-Pro.ttf);
+}
+
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  font-family: $font-family-base;
+  color: $text-color-dark;
+  background-color: $page-bg;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ==========================================================================
+   3. LAYOUT - Estrutura principal da página
+   ========================================================================== */
+
+main {
+  display: flex;
+  height: 100dvh; 
+}
+
+.side_container {
+  width: $sidebar-width;
+  flex-shrink: 0;
+  height: 100%;
+  background-color: $text-color-light;
+  padding: $padding-main-v 0;
+  border-right: $border-base;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $gap-main;
+  overflow-y: auto;
+}
+
+.dash_container {
+  flex-grow: 1;
+  height: 100%;
+  overflow-y: auto;
+  padding: $padding-main-h;
+}
+
+/* ==========================================================================
+   4. COMPONENTS - Estilos dos elementos da UI (usando as classes originais)
+   ========================================================================== */
+
+// --- Placeholders para evitar repetição (não geram CSS sozinhos) ---
+%button_base {
+  width: $content-width;
+  height: $item-height;
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+%archive_base {
+  width: $content-width;
+  height: $item-height;
+  padding: 0 $padding-item-h;
+  border-radius: $border-radius-item;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+// --- Aplicação dos estilos ---
+.side_container {
+  
+  h1 {
+    font-size: $font-size-title;
+    font-weight: $font-weight-bold;
+    width: $content-width;
+    margin-bottom: $margin-sm;
+  }
+
+  .user_info_box {
+    width: $content-width;
+    height: $item-height;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+
+    .user_display {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      img {
+        width: $avatar-size;
+        height: $avatar-size;
+        border-radius: $border-radius-round;
+      }
+      p { 
+        font-size: $font-size-base; 
+      }
+    }
+    .exit_button {
+      color: $icon-color;
+      cursor: pointer;
+    }
+  }
+
+  .actions_box {
+    .upload_button {
+      @extend %button_base; // Herda os estilos base
+      background-color: $primary-blue;
+      color: $text-color-light;
+      border-radius: $border-radius-btn;
+    }
+
+    .download_button {
+      @extend %button_base; // Herda os estilos base
+      background-color: $text-color-light;
+      border: $border-base;
+      color: $text-color-dark;
+      margin-top: $margin-sm;
+      border-radius: $border-radius-btn;
+    }
+  }
+
+  .history_box {
+    .history_list {
+      display: flex;
+      flex-direction: column;
+      gap: $gap-list;
+    }
+    
+    .archive {
+      @extend %archive_base; // Herda os estilos base
+      border: $border-base;
+    }
+
+    .archive_active {
+      @extend %archive_base; // Herda os estilos base
+      background-color: $light-gray-bg;
+    }
+  }
+}
+
+.content-example {
+    h1 {
+        font-size: 32px;
+        margin-bottom: 24px;
+    }
+    p {
+        font-size: $font-size-base;
+        line-height: 1.6;
+        max-width: 800px;
+        margin-bottom: 1000px;
+    }
+} 
+
+/* ==========================================================================
+   5. DASHBOARD COMPONENTS - Ajustado Fielmente à Imagem Final
+   ========================================================================== */
+
+// Estilos gerais para o container do dashboard
+.dash_container {
+  & > h1 {
+    font-size: $font-size-title;
+    font-weight: $font-weight-bold;
+    margin: 0 0 24px 0;
+  }
+}
+
+// Grid para os cards de KPI no topo
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+// Estilo base para todos os cards
+.card {
+  background-color: $text-color-light;
+  border: $border-base;
+  border-radius: $border-radius-item;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+// Estilo específico para os cards de KPI
+.kpi-card {
+  text-align: center;
+  .kpi-title {
+    font-size: $font-size-base;
+    color: $text-color-dark;
+    margin: 0 0 8px 0;
+    font-weight: normal; // Título com peso normal
+  }
+  .kpi-value {
+    font-size: 28px;
+    font-weight: $font-weight-bold; // Valor em negrito
+    margin: 0;
+  }
+}
+
+// Linha de cards
+.card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+
+  &.three-cols {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+// Seção com título acima dos cards
+.dashboard-section {
+  margin-bottom: 24px;
+  h2 {
+    font-size: $font-size-title;
+    font-weight: $font-weight-bold;
+    margin: 0 0 16px 0;
+  }
+}
+
+// Card de informações gerais
+.info-card {
+  h2 {
+    font-size: $font-size-title;
+    font-weight: $font-weight-bold;
+    margin: 0 0 16px 0;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    li {
+      font-size: $font-size-base;
+      color: $text-color-dark; // Cor de texto padrão (escura)
+      font-weight: normal;
+    }
+  }
+}
+
+// Card específico para os "Campeões de Compra"
+.champion-card {
+  text-align: center;
+  h3 {
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold; // "Cliente X" em negrito
+    color: $text-color-dark;
+    margin: 0 0 8px 0;
+  }
+  p {
+    font-size: $font-size-base;
+    font-weight: normal;
+    margin: 4px 0;
+    color: $icon-color;
+  }
+}
+
+// Lista do feed de vendas
+.feed-list {
+    li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: $text-color-dark;
+        font-size: $font-size-base;
+
+        &::before {
+        content: '🛒';
+        font-size: 16px;
+        }
+    }
+}
+
+// Remover o seletor .content-example
+.content-example {
+    display: none;
+}
+
+.top_dec {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    z-index: -1;
+    pointer-events: none; // Permite clicar nos elementos abaixo da imagem
+}

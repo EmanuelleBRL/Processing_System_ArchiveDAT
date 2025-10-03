@@ -1,22 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Processamento de Arquivo DAT</title>
+    <title>Dashboard de Vendas</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>Upload de Arquivo .dat de Vendas</h1>
-    <form id="uploadForm">
-        <input type="file" id="fileInput" name="file" accept=".dat" required />
-        <button type="submit">Enviar</button>
-    </form>
+    <main>
+        <div class="side_container">
+            <div class="user_info_box">
+                <div class="user_display">
+                    <img src="assets/profile_icon.png" alt="Ícone do usuário">
+                    <p>Olá, <b>User</b>!</p>
+                </div>
+                <div class="exit_button">
+                    <p>􁚠</p>
+                </div>
+            </div>
+            <div class="actions_box">
+                <h1>Ações</h1>
+                <div class="upload_button"><p>Carregar Arquivo</p></div>
+                <div class="download_button"><p>Baixar 􀁸</p></div>
+            </div>
+            <div class="history_box">
+                <h1>Histórico</h1>
+                <div class="history_list" id="history-list">
+                    <div class="archive_active">
+                        <p>29/09/2025</p> <p>􀩚</p>
+                    </div>
+                    <div class="archive">
+                        <p>28/09/2025</p> <p>􀈷</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="dash_container">
+            <h1 id="dashboard-title">Dashboard - 29/09/2025</h1>
 
-    <h2>Resultados do Processamento</h2>
-    <div id="result">
-        <p>Aguardando o envio do arquivo...</p>
-    </div>
+            <div class="kpi-grid">
+                <div class="card kpi-card">
+                    <p class="kpi-title">Faturamento Total</p>
+                    <p class="kpi-value" id="kpi-faturamento">R$0,00</p>
+                </div>
+                <div class="card kpi-card">
+                    <p class="kpi-title">Ticket Médio</p>
+                    <p class="kpi-value" id="kpi-ticket-medio">R$0,00</p>
+                </div>
+                <div class="card kpi-card">
+                    <p class="kpi-title">Itens Vendidos</p>
+                    <p class="kpi-value" id="kpi-itens-vendidos">0</p>
+                </div>
+                <div class="card kpi-card">
+                    <p class="kpi-title">Clientes Atendidos</p>
+                    <p class="kpi-value" id="kpi-clientes-atendidos">0</p>
+                </div>
+            </div>
 
-    <script src="scripts/index.js"></script>
+            <div class="card-row">
+                <div class="card info-card">
+                    <h2>Mais Vendidos (por Faturamento):</h2>
+                    <ul id="ranking-faturamento">
+                        </ul>
+                </div>
+                <div class="card info-card">
+                    <h2>Campeões de Volume (por Unidades)</h2>
+                    <ul id="ranking-volume">
+                        </ul>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h2>Campeões de Compra do Dia</h2>
+                <div class="card-row three-cols" id="campeoes-compra">
+                    </div>
+            </div>
+
+            <div class="card info-card">
+                <h2>Feed de Vendas</h2>
+                <ul class="feed-list" id="feed-vendas">
+                    </ul>
+            </div>
+        </div>
+    </main>
+    <script src="dashboard.js"></script>
 </body>
 </html>
