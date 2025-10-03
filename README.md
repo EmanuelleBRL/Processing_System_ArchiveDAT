@@ -123,28 +123,15 @@ Copiar código
   /routes
     vendasRoutes.ts
   server.ts
-Como Rodar
-Instalar dependências:
+Como Executar
+Instalar dependências do projeto
 
-bash
-Copiar código
-npm install
-Compilar TypeScript para JavaScript:
+Compilar TypeScript para JavaScript
 
-bash
-Copiar código
-tsc
-Rodar servidor em modo desenvolvimento:
+Rodar servidor
 
-bash
-Copiar código
-npm run dev
-Acessar endpoints:
+Acessar endpoints /vendas/processar e /vendas/upload
 
-bash
-Copiar código
-GET http://localhost:3000/vendas/processar
-POST http://localhost:3000/vendas/upload
 Exemplo de Payload
 Entrada (.dat):
 
@@ -172,11 +159,11 @@ Copiar código
   }
 ]
 Boas práticas
-Sempre validar arquivos .dat antes de enviar
+Validar arquivos .dat antes de enviar
 
-Garantir backup dos arquivos originais
+Manter backup dos arquivos originais
 
-Manter logs de uploads e processamento
+Registrar logs de uploads e processamento
 
 Nunca alterar os arquivos originais
 
