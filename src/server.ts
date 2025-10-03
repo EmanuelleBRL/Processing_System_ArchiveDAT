@@ -10,18 +10,7 @@ const app = express();
 
 app.use(express.json());
 
-// 💡 1. Objeto de configuração do CORS
-const corsOptions = {
-    // 💡 2. Defina a origem específica 
-    origin: 'https://leitor-de-vendas.vercel.app/', 
-    // Opcional: Especifique os métodos HTTP permitidos
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    // Opcional: Permita cookies e credenciais
-    credentials: true, 
-};
-
-// 💡 3. Use o middleware do cors com as opções
-app.use(cors(corsOptions)); 
+app.use(cors()); 
 
 // Suas rotas
 app.use(routes)
