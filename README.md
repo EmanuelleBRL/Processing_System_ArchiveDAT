@@ -4,7 +4,7 @@
 A empresa **"Varejo Rápido"** possui um sistema de ponto de venda (PDV) um pouco antigo.  
 Diariamente, ao final do expediente, este sistema gera um único arquivo de texto (`.dat`) com todos os registros de vendas do dia.
 
-Este backend foi desenvolvido para **ler, processar e estruturar automaticamente os dados do arquivo `.dat`**, retornando informações detalhadas de vendas, produtos e clientes em JSON.
+Essa aplicação web foi desenvolvida para **ler, processar e estruturar automaticamente os dados do arquivo `.dat`**, retornando informações detalhadas de vendas, produtos e clientes em JSON.
 
 Ideal para:  
 - Transformar arquivos legados em dados estruturados  
