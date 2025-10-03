@@ -113,8 +113,6 @@ Valores unitários vêm em centavos e são convertidos para reais
 Cada venda recebe um id_venda único sequencial
 
 Estrutura de Pastas
-bash
-Copiar código
 /src
   /controller
     VendasController.ts
