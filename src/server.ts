@@ -12,8 +12,8 @@ app.use(express.json());
 
 // 💡 1. Objeto de configuração do CORS
 const corsOptions = {
-    // 💡 2. Defina a origem específica
-    origin: 'http://127.0.0.1:5501', 
+    // 💡 2. Defina a origem específica 
+    origin: 'https://leitor-de-vendas.vercel.app/', 
     // Opcional: Especifique os métodos HTTP permitidos
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     // Opcional: Permita cookies e credenciais
