@@ -26,19 +26,6 @@ export interface Venda {
     valor_total_venda: number;
 }
 
-type VendaComRelacoes = {
-    id: number;
-    dataVenda: Date;
-    quantidade: number;
-    produtos: {
-        nome: string;
-        valorUnitario: number;
-    };
-    cliente: {
-        nome: string;
-    };
-};
-
 class DatFileParser {
     private vendaCounter = 1;
 
@@ -185,7 +172,7 @@ class VendasController {
             });
 
             // Formatar resposta conforme RF08-RF10
-            const vendasFormatadas = vendas.map((venda: VendaComRelacoes) => ({
+            const vendasFormatadas = vendas.map((venda) => ({
                 id_venda: venda.id,
                 data_venda: venda.dataVenda.toISOString().split('T')[0], // YYYY-MM-DD
                 nome_cliente: venda.cliente.nome,
