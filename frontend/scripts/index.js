@@ -16,7 +16,7 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
     resultDiv.innerHTML = '<p>Enviando e processando o arquivo...</p>';
 
     try {
-        const response = await fetch('http://localhost:3333/vendas/upload', {
+        const response = await fetch('processingsystemarchivedat-production.up.railway.app', {
             method: 'POST',
             body: formData
         });
@@ -77,3 +77,4 @@ function displayVendas(vendas) {
 
     resultDiv.innerHTML = table;
 }
+
