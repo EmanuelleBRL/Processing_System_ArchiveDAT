@@ -133,12 +133,11 @@ Acessar endpoints /vendas/processar e /vendas/upload
 Exemplo de Payload
 Entrada (.dat):
 
-Copiar código
 1001Teclado Mecânico Gamer                         0201Ana Silva                 0020000350DDMMYYYY
 Saída (JSON):
 
 json
-Copiar código
+
 [
   {
     "id_venda": 1,
