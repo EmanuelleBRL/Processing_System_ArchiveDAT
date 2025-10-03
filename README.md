@@ -2,14 +2,14 @@
 
 ## Contexto
 A empresa **"Varejo Rápido"** possui um sistema de ponto de venda (PDV) um pouco antigo.  
-Diariamente, ao final do expediente, este sistema gera um único arquivo de texto (`.dat`) com todos os registros de vendas do dia.  
+Diariamente, ao final do expediente, este sistema gera um único arquivo de texto (`.dat`) com todos os registros de vendas do dia.
 
-Este backend foi desenvolvido para **ler, processar e estruturar automaticamente os dados do arquivo `.dat`**, retornando informações detalhadas de vendas, produtos e clientes em JSON.  
+Este backend foi desenvolvido para **ler, processar e estruturar automaticamente os dados do arquivo `.dat`**, retornando informações detalhadas de vendas, produtos e clientes em JSON.
 
 Ideal para:  
 - Transformar arquivos legados em dados estruturados  
 - Automatizar relatórios diários de vendas  
-- Integração com dashboards ou sistemas ERP modernos  
+- Integração com dashboards ou sistemas ERP modernos
 
 ---
 
@@ -91,7 +91,13 @@ Resposta 200: Array de vendas processadas
 Resposta 400: Nenhum arquivo enviado
 
 POST /vendas/processar (alternativa)
-Processa um arquivo existente, mas retorna JSON estruturado com message, total e vendas.
+Processa um arquivo existente no servidor e retorna JSON estruturado com:
+
+message → Mensagem de sucesso
+
+total → Número total de registros processados
+
+vendas → Array de vendas
 
 Regras de Negócio
 Cada linha do .dat corresponde a um registro de venda
@@ -103,6 +109,8 @@ Datas e valores são formatados automaticamente
 IDs de clientes e produtos são extraídos corretamente do arquivo
 
 Valores unitários vêm em centavos e são convertidos para reais
+
+Cada venda recebe um id_venda único sequencial
 
 Estrutura de Pastas
 bash
@@ -121,25 +129,60 @@ Instalar dependências:
 bash
 Copiar código
 npm install
-Rodar TypeScript com recompilação automática:
+Compilar TypeScript para JavaScript:
 
 bash
 Copiar código
-tsc --watch
-Iniciar servidor:
+tsc
+Rodar servidor em modo desenvolvimento:
 
 bash
 Copiar código
 npm run dev
-Acessar:
+Acessar endpoints:
 
 bash
 Copiar código
 GET http://localhost:3000/vendas/processar
 POST http://localhost:3000/vendas/upload
+Exemplo de Payload
+Entrada (.dat):
+
+Copiar código
+1001Teclado Mecânico Gamer                         0201Ana Silva                 0020000350DDMMYYYY
+Saída (JSON):
+
+json
+Copiar código
+[
+  {
+    "id_venda": 1,
+    "data_venda": "2025-09-29",
+    "quantidade": 2,
+    "produto": {
+      "id": 1001,
+      "nome": "Teclado Mecânico Gamer",
+      "valor_unitario": 350.75
+    },
+    "cliente": {
+      "id": 201,
+      "nome": "Ana Silva"
+    },
+    "valor_total_venda": 701.50
+  }
+]
 Boas práticas
 Sempre validar arquivos .dat antes de enviar
 
 Garantir backup dos arquivos originais
 
 Manter logs de uploads e processamento
+
+Nunca alterar os arquivos originais
+
+Observações
+Datas são convertidas para o padrão ISO YYYY-MM-DD
+
+Valores unitários em centavos são convertidos para reais
+
+Todos os registros de venda são retornados mesmo se houver campos incompletos
